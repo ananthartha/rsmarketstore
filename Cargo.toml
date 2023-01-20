@@ -2,6 +2,14 @@
 name = "marketstore"
 version = "0.1.1"
 edition = "2021"
+authors = ["Kamalakar Gadireddy"]
+readme = "README.md"
+homepage = "https://github.com/ananthartha/rsmarketstore"
+repository = "https://github.com/ananthartha/rsmarketstore"
+license = "MIT"
+license-file = "LICENSE.txt"
+keywords = ["marketstore", "financial", "timeseries"]
+categories = ["parsing", "encoding", "database"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
