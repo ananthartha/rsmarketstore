@@ -64,3 +64,11 @@ impl MulAssign<u32> for Interval {
         self.0 = self.0 * rhs;
     }
 }
+
+impl Mul<Interval> for u32 {
+    type Output = Interval;
+
+    fn mul(self, rhs: Interval) -> Interval {
+        Interval(self * rhs.0)
+    }
+}

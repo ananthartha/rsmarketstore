@@ -1,8 +1,5 @@
 use candle::candle::Candle;
-use marketstore::{
-    proto::{list_symbols_request::Format, MultiQueryRequest},
-    Agent, Error, QueryParams,
-};
+use marketstore::{stream, Agent, Error, QueryParams};
 use tonic::transport::Uri;
 
 mod candle;
@@ -10,8 +7,7 @@ mod candle;
 #[tokio::main]
 
 async fn main() -> Result<(), Error> {
-    let agent = Agent::connect(
-        Uri::from_static("http://localhost:5995").into()).await;
+    let agent = Agent::connect(Uri::from_static("http://localhost:5995").into()).await;
 
     agent
         .query(QueryParams {
@@ -29,5 +25,6 @@ async fn main() -> Result<(), Error> {
             println!("{:#?}", candles)
         });
 
+    let (stream, receiver) = stream::connect::<Candle>("endpoint").await.unwrap();
     Ok(())
 }

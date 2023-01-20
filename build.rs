@@ -88,5 +88,18 @@ fn main() -> Result<()> {
         )
         .out_dir(&"examples/ohlcv/candle")
         .include_file("mod.rs")
-        .compile(&["examples/ohlcv/candle.proto"], &["examples/ohlcv/"])
+        .compile(&["examples/candle.proto"], &["examples/"])?;
+
+    tonic_build::configure()
+        .build_server(false)
+        .build_client(false)
+        .type_attribute(".", "#[derive(serde::Deserialize)]")
+        .serda_rename(
+            "Candle",
+            vec!["open", "high", "low", "close", "volume", "epoch"],
+            change_case::title_case,
+        )
+        .out_dir(&"examples/stream/candle")
+        .include_file("mod.rs")
+        .compile(&["examples/candle.proto"], &["examples/"])
 }

@@ -2,6 +2,8 @@ mod error;
 mod interval;
 mod params;
 pub mod proto;
+#[cfg(feature="stream")]
+pub mod stream;
 #[cfg(feature="serde")]
 pub mod serde;
 use proto::{
