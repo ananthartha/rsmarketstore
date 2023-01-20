@@ -8,13 +8,21 @@ edition = "2021"
 [dependencies]
 byteorder = "1.4.3"
 prost = "^0.11.3"
-serde = { version = "^1.0.152", features=["derive"] }
 thiserror = "^1.0.38"
-tokio = "^1.23.0"
+serde = { version = "^1.0.152", optional = true, default-features = false, features=["derive"] }
+tokio = { version = "^1.23.0", features=["rt-multi-thread"] }
 tonic = "^0.8.3"
 
 [build-dependencies]
 tonic = "^0.8.3"
 tonic-build = { version = "0.8.3" }
-reqwest = {version = "^0.11.11", features = ["blocking"]}
+reqwest = { version = "^0.11.11", features = ["blocking"] }
 temp-dir = "^0.1.11"
+change-case = "0.2.0"
+
+[features]
+default = []
+
+[[example]]
+name = "ohlcv"
+required-features = ["serde"]

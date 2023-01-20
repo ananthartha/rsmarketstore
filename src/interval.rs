@@ -6,9 +6,15 @@ use std::{
 #[derive(Debug, Clone, Copy)]
 pub struct Interval(Duration);
 
-pub const Min: Interval = Interval(Duration::from_secs(60));
-pub const Hour: Interval = Interval(Duration::from_secs(60 * 60));
-pub const Day: Interval = Interval(Duration::from_secs(60 * 60 * 24));
+impl Default for Interval {
+    fn default() -> Self {
+        Self(Default::default())
+    }
+}
+
+pub const MIN: Interval = Interval(Duration::from_secs(60));
+pub const HOUR: Interval = Interval(Duration::from_secs(60 * 60));
+pub const DAY: Interval = Interval(Duration::from_secs(60 * 60 * 24));
 
 impl From<Interval> for String {
     fn from(value: Interval) -> Self {

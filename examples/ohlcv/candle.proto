@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package candle;
+
+message Candle {
+    double  open            = 1;
+    double  high            = 2;
+    double  low             = 3;
+    double  close           = 4;
+    double  volume          = 5;
+    int64   epoch           = 6;
+}

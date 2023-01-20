@@ -5,6 +5,7 @@ use std::io::Cursor;
 
 use byteorder::LittleEndian;
 use byteorder::ReadBytesExt;
+use serde::Deserialize;
 use serde::de::{self, DeserializeSeed, IntoDeserializer, MapAccess, Visitor};
 use serde::forward_to_deserialize_any;
 
@@ -30,8 +31,8 @@ where
 
 pub struct Column(NumPyType, Cursor<Vec<u8>>);
 
-pub fn as_column(numPyType: NumPyType, cursor: Cursor<Vec<u8>>) -> Column {
-    return Column(numPyType, cursor);
+pub fn as_column(num_py_type: NumPyType, cursor: Cursor<Vec<u8>>) -> Column {
+    return Column(num_py_type, cursor);
 }
 
 impl Column {
@@ -63,7 +64,7 @@ impl DatasetItr {
         let mut instance = Self {
             pos: 0,
             columns: BTreeMap::new(),
-            length: dataset.length as usize,
+            length: (dataset.length - 1) as usize,
         };
 
         while let Some(column_name) = dataset.column_names.pop() {
@@ -94,6 +95,7 @@ impl DatasetItr {
     pub fn next(self: &mut Self) -> bool {
         if self.pos < self.length {
             self.pos += 1;
+            return true;
         }
         return false;
     }
@@ -144,7 +146,7 @@ impl<'de> de::Deserializer<'de> for &'de mut DatasetItr {
 struct PopulateMap<'de> {
     de: &'de mut DatasetItr,
     fields: Vec<&'de str>,
-    currentColumn: Option<String>,
+    current_column: Option<String>,
 }
 
 impl<'de> PopulateMap<'de> {
@@ -152,7 +154,7 @@ impl<'de> PopulateMap<'de> {
         PopulateMap {
             de,
             fields,
-            currentColumn: None,
+            current_column: None,
         }
     }
 }
@@ -168,8 +170,8 @@ impl<'de> MapAccess<'de> for PopulateMap<'de> {
             return Ok(None)
         };
 
-        self.currentColumn = Option::Some(String::from(column_name));
-        self.currentColumn
+        self.current_column = Option::Some(String::from(column_name));
+        self.current_column
             .clone()
             .map(IntoDeserializer::into_deserializer)
             .map(|column| seed.deserialize(column).map(Some))
@@ -183,8 +185,16 @@ impl<'de> MapAccess<'de> for PopulateMap<'de> {
         V: DeserializeSeed<'de>,
     {
         seed.deserialize(IntoDeserializer::into_deserializer(
-            self.de.get(self.currentColumn.as_ref().unwrap()).unwrap(),
+            self.de.get(self.current_column.as_ref().unwrap()).unwrap(),
         ))
+    }
+}
+
+impl<T : for<'a> Deserialize<'a>> TryInto<Vec<T>> for NumpyDataset {
+    type Error = Error;
+
+    fn try_into(self) -> Result<Vec<T>, Self::Error> {
+        return from_dataset(self)
     }
 }
 
