@@ -7,7 +7,7 @@ readme = "README.md"
 homepage = "https://github.com/ananthartha/rsmarketstore"
 repository = "https://github.com/ananthartha/rsmarketstore"
 license = "MIT"
-license-file = "LICENSE.txt"
+license-file = "LICENSE"
 keywords = ["marketstore", "financial", "timeseries"]
 categories = ["parsing", "encoding", "database"]
 
