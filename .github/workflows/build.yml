@@ -22,6 +22,16 @@ jobs:
     - name: Install stable toolchain
       uses: dtolnay/rust-toolchain@stable
 
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+
     - name: "Unit Test"
       run: cargo test
 
@@ -30,23 +40,29 @@ jobs:
         cargo install cargo-bump
         cargo bump patch
 
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Package bump by action
+        file_pattern: Cargo.toml
+        skip_checkout: true
+
     - uses: SebRollen/toml-action@v1.0.1
       id: version
       with:
         file: 'Cargo.toml'
         field: 'package.version'
 
-    - name: Publish Package
-      run: cargo publish --token ${CARGO_REGISTRY_TOKEN}
-      env:
-        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
     - uses: rickstaa/action-create-tag@v1
       with:
-        tag: v{{ steps.read_toml.outputs.value }}
+        tag: v{{ steps.version.outputs.value }}
 
     - name: Release
       id: create_release
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish Package
+      run: cargo publish --token ${CARGO_REGISTRY_TOKEN}
+      env:
+        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
