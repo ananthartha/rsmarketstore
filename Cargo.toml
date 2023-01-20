@@ -2,6 +2,7 @@
 name = "marketstore"
 version = "0.1.1"
 edition = "2021"
+description = "Marketstore rust driver"
 authors = ["Kamalakar Gadireddy"]
 readme = "README.md"
 homepage = "https://github.com/ananthartha/rsmarketstore"
