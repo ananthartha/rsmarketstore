@@ -22,6 +22,11 @@ jobs:
     - name: Install stable toolchain
       uses: dtolnay/rust-toolchain@stable
 
+    - uses: arduino/setup-protoc@v1
+      with:
+        version: '3.x'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
     - uses: actions/cache@v3
       with:
         path: |
