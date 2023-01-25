@@ -24,7 +24,7 @@ pub enum Error {
     #[doc(hidden)]
     #[error("Error while encoding request {:#?}", request)]
     RequestEncodingError {
-        request: stream::Request,
+        request: crate::stream::Request,
         #[source]
         source: rmp_serde::encode::Error,
     },
@@ -33,7 +33,7 @@ pub enum Error {
     #[doc(hidden)]
     #[error("Unable to create consumer for {:#?}", request)]
     UnableToSendRequestError {
-        request: stream::Request,
+        request: crate::stream::Request,
         #[source]
         source: futures_channel::mpsc::TrySendError<tokio_tungstenite::tungstenite::Message>,
     },
