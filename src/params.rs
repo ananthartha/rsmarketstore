@@ -33,15 +33,19 @@ impl Default for QueryParams {
 impl From<QueryParams> for MultiQueryRequest {
     fn from(value: QueryParams) -> Self {
         MultiQueryRequest {
-            requests: vec![QueryRequest {
-                destination: format!(
-                    "{}/{}/{}",
-                    value.symbols[0],
-                    String::from(value.timeframe),
-                    value.attrgroup
-                ),
-                ..Default::default()
-            }],
+            requests: value
+                .symbols
+                .into_iter()
+                .map(|symbol| QueryRequest {
+                    destination: format!(
+                        "{}/{}/{}",
+                        symbol,
+                        String::from(value.timeframe),
+                        value.attrgroup
+                    ),
+                    ..Default::default()
+                })
+                .collect::<Vec<_>>(),
         }
     }
 }
