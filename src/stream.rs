@@ -18,7 +18,7 @@ pub struct Request {
     pub streams: Vec<String>,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub struct Stream(UnboundedSender<Message>);
 
 impl Stream {
