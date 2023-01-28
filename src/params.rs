@@ -43,6 +43,8 @@ impl From<QueryParams> for MultiQueryRequest {
                         String::from(value.timeframe),
                         value.attrgroup
                     ),
+                    limit_record_count: value.limit_from_start.unwrap_or_default() as i32,
+                    limit_from_start: value.limit_from_start.unwrap_or_default(),
                     ..Default::default()
                 })
                 .collect::<Vec<_>>(),
