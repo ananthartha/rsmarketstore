@@ -41,6 +41,13 @@ impl From<Duration> for Interval {
     }
 }
 
+impl From<Interval> for Duration {
+    fn from(value: Interval) -> Self {
+        value.0
+    }
+}
+
+
 impl Mul<Duration> for Interval {
     type Output = Self;
 
