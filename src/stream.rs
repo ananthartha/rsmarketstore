@@ -52,12 +52,22 @@ where
     tokio::spawn(upstream_rx.map(Ok).forward(upstream));
 
     Ok((
-        Stream(upstream_tx),
-        downstream.filter_map(|message| async {
-            if let Ok(Message::Binary(data)) = message {
-                return rmp_serde::from_slice::<Msg<T>>(&data).ok();
-            }
-            None
-        }),
+        Stream(upstream_tx.clone()),
+        downstream
+            .map(move |message| {
+                if let Ok(Message::Ping(data)) = message.as_ref() {
+                    upstream_tx
+                        .unbounded_send(Message::Pong(data.clone()))
+                        .unwrap();
+                }
+                message
+            })
+            .filter_map(|message| async {
+                if let Ok(Message::Binary(data)) = message {
+                    return rmp_serde::from_slice::<Msg<T>>(&data).ok();
+                }
+
+                None
+            }),
     ))
 }
