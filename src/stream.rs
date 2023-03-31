@@ -1,11 +1,9 @@
-use std::collections::HashMap;
-
-use futures_channel::mpsc::{TrySendError, UnboundedSender};
+use futures_channel::mpsc::UnboundedSender;
 use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use tokio_tungstenite::{connect_async, tungstenite, tungstenite::protocol::Message};
 
-use crate::{error, Error};
+use crate::Error;
 
 #[derive(Debug, Deserialize, Default)]
 pub struct Msg<T> {

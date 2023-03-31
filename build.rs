@@ -2,10 +2,9 @@ use temp_dir::TempDir;
 extern crate reqwest;
 
 use std::fs::{self, File};
-use std::io::Error;
 use std::io::Result;
 use std::path::Path;
-use std::{io, process};
+use std::io;
 
 trait TonicBuilderExtended {
     fn field_attributes(self: Self, paths: Vec<&str>, attributes: Vec<&str>) -> Self;

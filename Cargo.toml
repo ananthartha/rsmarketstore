@@ -34,7 +34,7 @@ temp-dir = "^0.1.11"
 change-case = "^0.2.0"
 
 [features]
-default = []
+default = ["stream"]
 
 serde = ["serde/derive"]
 

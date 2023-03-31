@@ -12,7 +12,7 @@ async fn main() -> Result<(), Error> {
         .await
         .unwrap();
 
-    stream.subscribe(vec!["NIFTY 50/1Min/OHLCV".into()]).await?;
+    stream.subscribe(vec!["NIFTY 50/*/*".into(), "NIFTY2330217400CE/*/*".into(), "NIFTY2330217400PE/*/*".into()]).await?;
     receiver
         .for_each(|msg| async move {
             println!("{:#?}", msg);

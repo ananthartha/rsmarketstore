@@ -1,4 +1,4 @@
-use std::fmt::{self, Display};
+use std::fmt::Display;
 
 use serde::{de, ser};
 
@@ -19,6 +19,10 @@ pub enum Error {
     #[doc(hidden)]
     #[error("Unsupport data type {r#type}")]
     Unsupported { r#type: String },
+
+    #[doc(hidden)]
+    #[error("Cannot to be casted to {r#type}")]
+    UnableToCast { r#type: String },
 }
 
 impl ser::Error for Error {
