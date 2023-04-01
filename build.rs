@@ -2,10 +2,9 @@ use temp_dir::TempDir;
 extern crate reqwest;
 
 use std::fs::{self, File};
-use std::io::Error;
 use std::io::Result;
 use std::path::Path;
-use std::{io, process};
+use std::io;
 
 trait TonicBuilderExtended {
     fn field_attributes(self: Self, paths: Vec<&str>, attributes: Vec<&str>) -> Self;
@@ -88,5 +87,18 @@ fn main() -> Result<()> {
         )
         .out_dir(&"examples/ohlcv/candle")
         .include_file("mod.rs")
-        .compile(&["examples/ohlcv/candle.proto"], &["examples/ohlcv/"])
+        .compile(&["examples/candle.proto"], &["examples/"])?;
+
+    tonic_build::configure()
+        .build_server(false)
+        .build_client(false)
+        .type_attribute(".", "#[derive(serde::Deserialize)]")
+        .serda_rename(
+            "Candle",
+            vec!["open", "high", "low", "close", "volume", "epoch"],
+            change_case::title_case,
+        )
+        .out_dir(&"examples/stream/candle")
+        .include_file("mod.rs")
+        .compile(&["examples/candle.proto"], &["examples/"])
 }

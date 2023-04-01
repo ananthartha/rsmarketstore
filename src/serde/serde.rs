@@ -38,17 +38,17 @@ pub fn as_column(num_py_type: NumPyType, cursor: Cursor<Vec<u8>>) -> Column {
 impl Column {
     fn read(self: &mut Self) -> Value {
         match self.0 {
-            NumPyType::i1 => self.1.read_i8().map(Value::I1).unwrap(),
-            NumPyType::i2 => self.1.read_i16::<LittleEndian>().map(Value::I2).unwrap(),
-            NumPyType::i4 => self.1.read_i32::<LittleEndian>().map(Value::I4).unwrap(),
-            NumPyType::i8 => self.1.read_i64::<LittleEndian>().map(Value::I8).unwrap(),
-            NumPyType::u1 => self.1.read_u8().map(Value::U1).unwrap(),
-            NumPyType::u2 => self.1.read_u16::<LittleEndian>().map(Value::U2).unwrap(),
-            NumPyType::u4 => self.1.read_u32::<LittleEndian>().map(Value::U4).unwrap(),
-            NumPyType::u8 => self.1.read_u64::<LittleEndian>().map(Value::U8).unwrap(),
+            NumPyType::I1 => self.1.read_i8().map(Value::I1).unwrap(),
+            NumPyType::I2 => self.1.read_i16::<LittleEndian>().map(Value::I2).unwrap(),
+            NumPyType::I4 => self.1.read_i32::<LittleEndian>().map(Value::I4).unwrap(),
+            NumPyType::I8 => self.1.read_i64::<LittleEndian>().map(Value::I8).unwrap(),
+            NumPyType::U1 => self.1.read_u8().map(Value::U1).unwrap(),
+            NumPyType::U2 => self.1.read_u16::<LittleEndian>().map(Value::U2).unwrap(),
+            NumPyType::U4 => self.1.read_u32::<LittleEndian>().map(Value::U4).unwrap(),
+            NumPyType::U8 => self.1.read_u64::<LittleEndian>().map(Value::U8).unwrap(),
             // DType::f2 => self.1.read_f32::<LittleEndian>().map(Value::F2).unwrap(),
-            NumPyType::f4 => self.1.read_f32::<LittleEndian>().map(Value::F4).unwrap(),
-            NumPyType::f8 => self.1.read_f64::<LittleEndian>().map(Value::F8).unwrap(),
+            NumPyType::F4 => self.1.read_f32::<LittleEndian>().map(Value::F4).unwrap(),
+            NumPyType::F8 => self.1.read_f64::<LittleEndian>().map(Value::F8).unwrap(),
         }
     }
 }
@@ -111,7 +111,7 @@ impl DatasetItr {
 impl<'de> de::Deserializer<'de> for &'de mut DatasetItr {
     type Error = Error;
 
-    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_any<V>(self, _visitor: V) -> Result<V::Value, Self::Error>
     where
         V: Visitor<'de>,
     {
@@ -126,7 +126,7 @@ impl<'de> de::Deserializer<'de> for &'de mut DatasetItr {
 
     fn deserialize_struct<V>(
         self,
-        name: &'static str,
+        _name: &'static str,
         fields: &'static [&'static str],
         visitor: V,
     ) -> Result<V::Value, Self::Error>
@@ -224,7 +224,7 @@ mod test {
                     "f8".into(),
                     "f8".into(),
                     "f8".into(),
-                    "i8".into(),
+                    "f8".into(),
                 ],
                 column_names: vec![
                     "open".into(),

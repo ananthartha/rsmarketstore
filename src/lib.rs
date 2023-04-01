@@ -2,8 +2,10 @@ mod error;
 mod interval;
 mod params;
 pub mod proto;
-#[cfg(feature="serde")]
+#[cfg(feature = "serde")]
 pub mod serde;
+#[cfg(feature = "stream")]
+pub mod stream;
 use proto::{
     list_symbols_request::Format, ListSymbolsRequest, MultiQueryRequest, NumpyMultiDataset,
 };
@@ -60,4 +62,8 @@ impl From<MarketstoreClient<tonic::transport::Channel>> for Agent {
     fn from(client: MarketstoreClient<tonic::transport::Channel>) -> Self {
         Self { client }
     }
+}
+
+pub fn destination(symbol: String, interval: Interval, attrgroup: String) -> String {
+    format!("{}/{}/{}", symbol, String::from(interval), attrgroup)
 }

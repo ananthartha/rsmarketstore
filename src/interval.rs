@@ -35,6 +35,19 @@ impl From<Interval> for String {
     }
 }
 
+impl From<Duration> for Interval {
+    fn from(value: Duration) -> Self {
+        Interval(value)
+    }
+}
+
+impl From<Interval> for Duration {
+    fn from(value: Interval) -> Self {
+        value.0
+    }
+}
+
+
 impl Mul<Duration> for Interval {
     type Output = Self;
 
@@ -62,5 +75,13 @@ impl Mul<u32> for Interval {
 impl MulAssign<u32> for Interval {
     fn mul_assign(&mut self, rhs: u32) {
         self.0 = self.0 * rhs;
+    }
+}
+
+impl Mul<Interval> for u32 {
+    type Output = Interval;
+
+    fn mul(self, rhs: Interval) -> Interval {
+        Interval(self * rhs.0)
     }
 }

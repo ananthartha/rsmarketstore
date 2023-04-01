@@ -7,17 +7,17 @@ pub use value::Value;
 
 #[derive(Clone, Copy)]
 pub enum NumPyType {
-    i1,
-    i2,
-    i4,
-    i8,
-    u1,
-    u2,
-    u4,
-    u8,
+    I1,
+    I2,
+    I4,
+    I8,
+    U1,
+    U2,
+    U4,
+    U8,
     // f2,
-    f4,
-    f8,
+    F4,
+    F8,
     // f16,
 }
 
@@ -26,17 +26,17 @@ impl TryFrom<String> for NumPyType {
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.as_str() {
-            "i1" => Ok(Self::i1),
-            "i2" => Ok(Self::i2),
-            "i4" => Ok(Self::i4),
-            "i8" => Ok(Self::i8),
-            "u1" => Ok(Self::u1),
-            "u2" => Ok(Self::u4),
-            "u4" => Ok(Self::u4),
-            "u8" => Ok(Self::u8),
+            "i1" => Ok(Self::I1),
+            "i2" => Ok(Self::I2),
+            "i4" => Ok(Self::I4),
+            "i8" => Ok(Self::I8),
+            "u1" => Ok(Self::U1),
+            "u2" => Ok(Self::U4),
+            "u4" => Ok(Self::U4),
+            "u8" => Ok(Self::U8),
             // "f2" => Ok(Self::f2),
-            "f4" => Ok(Self::f4),
-            "f8" => Ok(Self::f8),
+            "f4" => Ok(Self::F4),
+            "f8" => Ok(Self::F8),
             // "f16" => Ok(Self::f16),
             _ => Err(Error::Unsupported {
                 r#type: String::from(value),
@@ -48,17 +48,17 @@ impl TryFrom<String> for NumPyType {
 impl From<NumPyType> for String {
     fn from(value: NumPyType) -> Self {
         match value {
-            NumPyType::i1 => "i1",
-            NumPyType::i2 => "i2",
-            NumPyType::i4 => "i4",
-            NumPyType::i8 => "i8",
-            NumPyType::u1 => "u1",
-            NumPyType::u2 => "u2",
-            NumPyType::u4 => "u4",
-            NumPyType::u8 => "u8",
+            NumPyType::I1 => "i1",
+            NumPyType::I2 => "i2",
+            NumPyType::I4 => "i4",
+            NumPyType::I8 => "i8",
+            NumPyType::U1 => "u1",
+            NumPyType::U2 => "u2",
+            NumPyType::U4 => "u4",
+            NumPyType::U8 => "u8",
             // DType::f2 => "f2",
-            NumPyType::f4 => "f4",
-            NumPyType::f8 => "f8",
+            NumPyType::F4 => "f4",
+            NumPyType::F8 => "f8",
             // DType::f16 => "f16",
         }
         .to_string()

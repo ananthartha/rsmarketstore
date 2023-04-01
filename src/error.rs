@@ -19,4 +19,22 @@ pub enum Error {
         #[source]
         source: tonic::Status,
     },
+
+    #[cfg(feature="stream")]
+    #[doc(hidden)]
+    #[error("Error while encoding request {:#?}", request)]
+    RequestEncodingError {
+        request: crate::stream::Request,
+        #[source]
+        source: rmp_serde::encode::Error,
+    },
+
+    #[cfg(feature="stream")]
+    #[doc(hidden)]
+    #[error("Unable to create consumer for {:#?}", request)]
+    UnableToSendRequestError {
+        request: crate::stream::Request,
+        #[source]
+        source: futures_channel::mpsc::TrySendError<tokio_tungstenite::tungstenite::Message>,
+    },
 }
