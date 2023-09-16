@@ -1,11 +1,9 @@
 use candle::candle::Candle;
-use marketstore::{stream, Agent, Error, QueryParams};
-use tonic::transport::Uri;
+use marketstore::{stream, Agent, Error, QueryParams, transport::Uri};
 
 mod candle;
 
 #[tokio::main]
-
 async fn main() -> Result<(), Error> {
     let agent = Agent::connect(Uri::from_static("http://localhost:5995").into()).await;
 

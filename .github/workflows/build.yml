@@ -1,11 +1,29 @@
-name: build and publish
+name: Tag, Build and Publish
+
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
-      - Cargo.toml
+  workflow_dispatch:
+    inputs:
+      version:
+        type: choice
+        description: Semver Bump
+        default: prepatch
+        options:
+          - major
+          - minor
+          - patch
+          - premajor
+          - preminor
+          - prepatch
+          - skip
+          - prerelease
+      preId:
+        type: choice
+        description: Pre-Release Id
+        default: none
+        options:
+          - none
+          - beta
+          - alpha
 
 jobs:
   build:
@@ -15,61 +33,64 @@ jobs:
       REGISTRY: ghcr.io/ananthartha
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - name: Install stable toolchain
-      uses: dtolnay/rust-toolchain@stable
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
 
-    - uses: arduino/setup-protoc@v1
-      with:
-        version: '3.x'
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: arduino/setup-protoc@v1
+        with:
+          version: "3.x"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
 
-    - name: "Unit Test"
-      run: cargo test
+      - name: "Unit Test"
+        run: cargo test
 
-    - name: "Version Bump"
-      run: |
-        cargo install cargo-bump
-        cargo bump patch
+      - uses: fregante/setup-git-user@v2
+      - name: "Run workspace to Tag"
+        run: |
+          if [[ "$(cargo -q --list)" != *"workspaces"* ]]; then
+            cargo install cargo-workspaces
+          fi
+          cargo workspaces publish -y --token ${{ secrets.CARGO_REGISTRY_TOKEN }} --allow-branch ${{ github.event.repository.default_branch }} --no-individual-tags${{ (inputs.preId != 'none' && format(' --pre-id {0}', inputs.preId)) || '' }} ${{ inputs.version }}
+          RELEASE_TAG=$(git describe --tags --abbrev=0)
+          echo "RELEASE_TAG=${RELEASE_TAG}" >> $GITHUB_ENV
 
-    - uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: Package bump by action
-        file_pattern: Cargo.toml
-        skip_checkout: true
+          SANITIZED_BRANCH_NAME=$(echo -n "${{ github.ref_name }}" | tr "/" "-")
+          BRANCH_TAG="$SANITIZED_BRANCH_NAME"
+          if [[ $SANITIZED_BRANCH_NAME == "${{ github.event.repository.default_branch }}" && "${{ github.event.pull_request.head.repo.fork }}" != "true" ]]; then
+            BRANCH_TAG="latest"
+          fi
+          echo "BRANCH_TAG=$BRANCH_TAG" >> $GITHUB_ENV
 
-    - uses: SebRollen/toml-action@v1.0.1
-      id: version
-      with:
-        file: 'Cargo.toml'
-        field: 'package.version'
 
-    - uses: rickstaa/action-create-tag@v1
-      with:
-        tag: v${{ steps.version.outputs.value }}
+          if [[ ! $(git describe --exact-match --tags $(git log -n1 --pretty='%h')) ]]; then
+            echo "No new tag found for build"
+            exit 1
+          fi
 
-    - name: Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v${{ steps.version.outputs.value }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: SebRollen/toml-action@v1.0.1
+        id: version
+        with:
+          file: "Cargo.toml"
+          field: "package.version"
 
-    - name: Publish Package
-      run: cargo publish --token ${CARGO_REGISTRY_TOKEN}
-      env:
-        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.value }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
