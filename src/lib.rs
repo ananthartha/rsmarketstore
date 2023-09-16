@@ -9,12 +9,12 @@ pub mod stream;
 use proto::{
     list_symbols_request::Format, ListSymbolsRequest, MultiQueryRequest, NumpyMultiDataset,
 };
-use tonic::transport::Endpoint;
 
 pub use error::Error;
 pub use interval::*;
 pub use params::QueryParams;
 pub use proto::marketstore_client::MarketstoreClient;
+pub use tonic::transport;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -24,7 +24,7 @@ pub struct Agent {
 }
 
 impl Agent {
-    pub async fn connect(dst: Endpoint) -> Self {
+    pub async fn connect(dst: transport::Endpoint) -> Self {
         Self {
             client: MarketstoreClient::connect(dst).await.unwrap(),
         }
