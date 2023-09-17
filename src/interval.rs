@@ -4,6 +4,10 @@ use std::{
 };
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
+#[cfg(feature = "serde")]
+#[derive(serde::Serialize, serde::Deserialize)]
+#[cfg(feature = "serde")]
+#[serde(from = "String", into = "String")]
 pub struct Interval(Duration);
 
 impl Default for Interval {
@@ -83,5 +87,11 @@ impl Mul<Interval> for u32 {
 
     fn mul(self, rhs: Interval) -> Interval {
         Interval(self * rhs.0)
+    }
+}
+
+impl From<String> for Interval {
+    fn from(value: String) -> Self {
+        todo!()
     }
 }
