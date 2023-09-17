@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, PartialOrd, Ord)]
 pub struct Interval(Duration);
 
 impl Default for Interval {
