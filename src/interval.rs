@@ -1,3 +1,9 @@
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    character::complete::digit1,
+    combinator::{all_consuming, map_res},
+};
 use std::{
     ops::{Mul, MulAssign},
     time::Duration,
@@ -7,7 +13,7 @@ use std::{
 #[cfg(feature = "serde")]
 #[derive(serde::Serialize, serde::Deserialize)]
 #[cfg(feature = "serde")]
-#[serde(from = "String", into = "String")]
+#[serde(try_from = "&str", into = "String")]
 pub struct Interval(Duration);
 
 impl Default for Interval {
@@ -58,7 +64,6 @@ impl From<Interval> for Duration {
     }
 }
 
-
 impl Mul<Duration> for Interval {
     type Output = Self;
 
@@ -97,8 +102,22 @@ impl Mul<Interval> for u32 {
     }
 }
 
-impl From<String> for Interval {
-    fn from(value: String) -> Self {
-        todo!()
+impl<'t> TryFrom<&'t str> for Interval {
+    type Error = nom::Err<nom::error::Error<&'t str>>;
+
+    fn try_from(input: &'t str) -> Result<Self, Self::Error> {
+        let (input, interval) = map_res(digit1, |s: &str| s.parse::<u64>())(input)?;
+
+        let (_, duration) = all_consuming(alt((tag("Min"), tag("H"), tag("D"))))(input)?;
+
+        Ok(Interval(Duration::from_secs(
+            interval
+                * match duration {
+                    "Min" => 60,
+                    "H" => 3600,
+                    "D" => 86400,
+                    _ => todo!("not a valid value"),
+                },
+        )))
     }
 }
