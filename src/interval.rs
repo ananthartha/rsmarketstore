@@ -26,10 +26,29 @@ pub const MIN: Interval = Interval(Duration::from_secs(60));
 pub const HOUR: Interval = Interval(Duration::from_secs(60 * 60));
 pub const DAY: Interval = Interval(Duration::from_secs(60 * 60 * 24));
 
+const MIN_IN_SECONDS: u64 = 60;
+const HOUR_IN_SECONDS: u64 = 3600;
+const DAY_IN_SECONDS: u64 = 86400;
+
 impl Interval {
     #[inline]
     pub fn as_secs(&self) -> u64 {
         self.0.as_secs()
+    }
+
+    #[inline]
+    pub fn as_mins(&self) -> u64 {
+        self.0.as_secs() / MIN_IN_SECONDS
+    }
+
+    #[inline]
+    pub fn as_hours(&self) -> u64 {
+        self.0.as_secs() / HOUR_IN_SECONDS
+    }
+
+    #[inline]
+    pub fn as_days(&self) -> u64 {
+        self.0.as_secs() / DAY_IN_SECONDS
     }
 }
 
@@ -113,9 +132,9 @@ impl<'t> TryFrom<&'t str> for Interval {
         Ok(Interval(Duration::from_secs(
             interval
                 * match duration {
-                    "Min" => 60,
-                    "H" => 3600,
-                    "D" => 86400,
+                    "Min" => MIN_IN_SECONDS,
+                    "H" => HOUR_IN_SECONDS,
+                    "D" => DAY_IN_SECONDS,
                     _ => todo!("not a valid value"),
                 },
         )))
