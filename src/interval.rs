@@ -20,6 +20,13 @@ pub const MIN: Interval = Interval(Duration::from_secs(60));
 pub const HOUR: Interval = Interval(Duration::from_secs(60 * 60));
 pub const DAY: Interval = Interval(Duration::from_secs(60 * 60 * 24));
 
+impl Interval {
+    #[inline]
+    pub fn as_secs(&self) -> u64 {
+        self.0.as_secs()
+    }
+}
+
 impl From<Interval> for String {
     fn from(value: Interval) -> Self {
         let min = value.0.as_secs() / 60;
