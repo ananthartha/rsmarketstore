@@ -1,7 +1,7 @@
 mod error;
 mod serde;
 mod value;
-use self::error::Error;
+pub use self::error::Error;
 pub use self::serde::from_dataset;
 pub use value::Value;
 
