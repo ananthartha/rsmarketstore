@@ -13,7 +13,7 @@ use std::{
 #[cfg(feature = "serde")]
 #[derive(serde::Serialize, serde::Deserialize)]
 #[cfg(feature = "serde")]
-#[serde(try_from = "&str", into = "String")]
+#[serde(try_from = "String", into = "String")]
 pub struct Interval(Duration);
 
 impl Default for Interval {
@@ -128,6 +128,43 @@ impl<'t> TryFrom<&'t str> for Interval {
         let (input, interval) = map_res(digit1, |s: &str| s.parse::<u64>())(input)?;
 
         let (_, duration) = all_consuming(alt((tag("Min"), tag("H"), tag("D"))))(input)?;
+
+        Ok(Interval(Duration::from_secs(
+            interval
+                * match duration {
+                    "Min" => MIN_IN_SECONDS,
+                    "H" => HOUR_IN_SECONDS,
+                    "D" => DAY_IN_SECONDS,
+                    _ => todo!("not a valid value"),
+                },
+        )))
+    }
+}
+
+fn to_string_err(err: nom::Err<nom::error::Error<&str>>) -> nom::Err<nom::error::Error<String>> {
+    match err {
+        nom::Err::Incomplete(ic) => nom::Err::Incomplete(ic),
+        nom::Err::Error(e) => nom::Err::Error(nom::error::Error {
+            input: String::from(e.input),
+            code: e.code,
+        }),
+        nom::Err::Failure(e) => nom::Err::Error(nom::error::Error {
+            input: String::from(e.input),
+            code: e.code,
+        }),
+    }
+}
+
+impl TryFrom<String> for Interval {
+    type Error = nom::Err<nom::error::Error<String>>;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let input = value.as_str();
+
+        let (input, interval) =
+            map_res(digit1, |s: &str| s.parse::<u64>())(input).map_err(to_string_err)?;
+        let (_, duration) =
+            all_consuming(alt((tag("Min"), tag("H"), tag("D"))))(input).map_err(to_string_err)?;
 
         Ok(Interval(Duration::from_secs(
             interval
