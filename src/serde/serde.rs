@@ -5,9 +5,9 @@ use std::io::Cursor;
 
 use byteorder::LittleEndian;
 use byteorder::ReadBytesExt;
-use serde::Deserialize;
 use serde::de::{self, DeserializeSeed, IntoDeserializer, MapAccess, Visitor};
 use serde::forward_to_deserialize_any;
+use serde::Deserialize;
 
 use super::error::Error;
 use super::{NumPyType, Value};
@@ -17,12 +17,14 @@ where
     T: de::DeserializeOwned,
 {
     let mut items: Vec<T> = vec![];
-    let mut deserializer = DatasetItr::new(dataset);
+    if dataset.length > 0 {
+        let mut deserializer = DatasetItr::new(dataset);
 
-    loop {
-        items.push(T::deserialize(&mut deserializer)?);
-        if !deserializer.next() {
-            break;
+        loop {
+            items.push(T::deserialize(&mut deserializer)?);
+            if !deserializer.next() {
+                break;
+            }
         }
     }
 
@@ -106,6 +108,11 @@ impl DatasetItr {
             .get_mut(name.into())
             .map(|column| column.read())
     }
+
+    #[inline]
+    pub fn len(self: &Self) -> usize {
+        self.length
+    }
 }
 
 impl<'de> de::Deserializer<'de> for &'de mut DatasetItr {
@@ -167,7 +174,7 @@ impl<'de> MapAccess<'de> for PopulateMap<'de> {
         K: DeserializeSeed<'de>,
     {
         let Some(column_name) = self.fields.pop() else {
-            return Ok(None)
+            return Ok(None);
         };
 
         self.current_column = Option::Some(String::from(column_name));
@@ -190,11 +197,11 @@ impl<'de> MapAccess<'de> for PopulateMap<'de> {
     }
 }
 
-impl<T : for<'a> Deserialize<'a>> TryInto<Vec<T>> for NumpyDataset {
+impl<T: for<'a> Deserialize<'a>> TryInto<Vec<T>> for NumpyDataset {
     type Error = Error;
 
     fn try_into(self) -> Result<Vec<T>, Self::Error> {
-        return from_dataset(self)
+        return from_dataset(self);
     }
 }
 
