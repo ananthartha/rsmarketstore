@@ -55,7 +55,7 @@ impl From<QueryParams> for MultiQueryRequest {
         let (epoch_start, epoch_start_nanos) =
             value.start.map(system_time_as_epoch).unwrap_or_default();
         let (epoch_end, epoch_end_nanos) =
-            value.start.map(system_time_as_epoch).unwrap_or_default();
+            value.end.map(system_time_as_epoch).unwrap_or_default();
 
         MultiQueryRequest {
             requests: value
