@@ -50,6 +50,11 @@ impl Interval {
     pub fn as_days(&self) -> u64 {
         self.0.as_secs() / DAY_IN_SECONDS
     }
+
+    #[inline]
+    pub fn as_duration(&self) -> Duration {
+        self.0.clone()
+    }
 }
 
 impl From<Interval> for String {
