@@ -1,5 +1,5 @@
 mod error;
-mod interval;
+pub mod interval;
 mod params;
 pub mod proto;
 #[cfg(feature = "serde")]

@@ -30,8 +30,33 @@ impl Default for QueryParams {
     }
 }
 
+fn system_time_as_epoch(system_time: std::time::SystemTime) -> (i64, i64) {
+    let (seconds, nanos) = match system_time.duration_since(std::time::UNIX_EPOCH) {
+        Ok(duration) => {
+            let seconds = i64::try_from(duration.as_secs()).unwrap();
+            (seconds, duration.subsec_nanos() as i64)
+        }
+        Err(error) => {
+            let duration = error.duration();
+            let seconds = i64::try_from(duration.as_secs()).unwrap();
+            let nanos = duration.subsec_nanos() as i64;
+            if nanos == 0 {
+                (-seconds, 0)
+            } else {
+                (-seconds - 1, 1_000_000_000 - nanos)
+            }
+        }
+    };
+    return (seconds, nanos);
+}
+
 impl From<QueryParams> for MultiQueryRequest {
     fn from(value: QueryParams) -> Self {
+        let (epoch_start, epoch_start_nanos) =
+            value.start.map(system_time_as_epoch).unwrap_or_default();
+        let (epoch_end, epoch_end_nanos) =
+            value.end.map(system_time_as_epoch).unwrap_or_default();
+
         MultiQueryRequest {
             requests: value
                 .symbols
@@ -43,6 +68,10 @@ impl From<QueryParams> for MultiQueryRequest {
                         String::from(value.timeframe),
                         value.attrgroup
                     ),
+                    epoch_start,
+                    epoch_start_nanos,
+                    epoch_end,
+                    epoch_end_nanos,
                     limit_record_count: value.limit.unwrap_or_default() as i32,
                     limit_from_start: value.limit_from_start.unwrap_or_default(),
                     ..Default::default()
