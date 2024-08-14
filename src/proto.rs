@@ -186,9 +186,9 @@ pub mod list_symbols_request {
     )]
     #[repr(i32)]
     pub enum Format {
-        /// symbol names (e.g. ["AAPL", "AMZN", ....])
+        /// symbol names (e.g. \["AAPL", "AMZN", ....\])
         Symbol = 0,
-        /// {symbol/timeframe/attributeGroup} names (e.g. ["AAPL/1Min/TICK", "AAPL/1Sec/OHLCV", "Amazon/1D/Tick",...])
+        /// {symbol/timeframe/attributeGroup} names (e.g. \["AAPL/1Min/TICK", "AAPL/1Sec/OHLCV", "Amazon/1D/Tick",...\])
         TimeBucketKey = 1,
     }
     impl Format {
@@ -314,7 +314,7 @@ pub mod marketstore_client {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
-            D: std::convert::TryInto<tonic::transport::Endpoint>,
+            D: TryInto<tonic::transport::Endpoint>,
             D::Error: Into<StdError>,
         {
             let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
@@ -370,10 +370,29 @@ pub mod marketstore_client {
             self.inner = self.inner.accept_compressed(encoding);
             self
         }
+        /// Limits the maximum size of a decoded message.
+        ///
+        /// Default: `4MB`
+        #[must_use]
+        pub fn max_decoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_decoding_message_size(limit);
+            self
+        }
+        /// Limits the maximum size of an encoded message.
+        ///
+        /// Default: `usize::MAX`
+        #[must_use]
+        pub fn max_encoding_message_size(mut self, limit: usize) -> Self {
+            self.inner = self.inner.max_encoding_message_size(limit);
+            self
+        }
         pub async fn query(
             &mut self,
             request: impl tonic::IntoRequest<super::MultiQueryRequest>,
-        ) -> Result<tonic::Response<super::MultiQueryResponse>, tonic::Status> {
+        ) -> std::result::Result<
+            tonic::Response<super::MultiQueryResponse>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -385,12 +404,17 @@ pub mod marketstore_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/proto.Marketstore/Query");
-            self.inner.unary(request.into_request(), path, codec).await
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("proto.Marketstore", "Query"));
+            self.inner.unary(req, path, codec).await
         }
         pub async fn create(
             &mut self,
             request: impl tonic::IntoRequest<super::MultiCreateRequest>,
-        ) -> Result<tonic::Response<super::MultiServerResponse>, tonic::Status> {
+        ) -> std::result::Result<
+            tonic::Response<super::MultiServerResponse>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -402,12 +426,17 @@ pub mod marketstore_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/proto.Marketstore/Create");
-            self.inner.unary(request.into_request(), path, codec).await
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("proto.Marketstore", "Create"));
+            self.inner.unary(req, path, codec).await
         }
         pub async fn write(
             &mut self,
             request: impl tonic::IntoRequest<super::MultiWriteRequest>,
-        ) -> Result<tonic::Response<super::MultiServerResponse>, tonic::Status> {
+        ) -> std::result::Result<
+            tonic::Response<super::MultiServerResponse>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -419,12 +448,17 @@ pub mod marketstore_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static("/proto.Marketstore/Write");
-            self.inner.unary(request.into_request(), path, codec).await
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("proto.Marketstore", "Write"));
+            self.inner.unary(req, path, codec).await
         }
         pub async fn destroy(
             &mut self,
             request: impl tonic::IntoRequest<super::MultiKeyRequest>,
-        ) -> Result<tonic::Response<super::MultiServerResponse>, tonic::Status> {
+        ) -> std::result::Result<
+            tonic::Response<super::MultiServerResponse>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -438,12 +472,17 @@ pub mod marketstore_client {
             let path = http::uri::PathAndQuery::from_static(
                 "/proto.Marketstore/Destroy",
             );
-            self.inner.unary(request.into_request(), path, codec).await
+            let mut req = request.into_request();
+            req.extensions_mut().insert(GrpcMethod::new("proto.Marketstore", "Destroy"));
+            self.inner.unary(req, path, codec).await
         }
         pub async fn list_symbols(
             &mut self,
             request: impl tonic::IntoRequest<super::ListSymbolsRequest>,
-        ) -> Result<tonic::Response<super::ListSymbolsResponse>, tonic::Status> {
+        ) -> std::result::Result<
+            tonic::Response<super::ListSymbolsResponse>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -457,12 +496,18 @@ pub mod marketstore_client {
             let path = http::uri::PathAndQuery::from_static(
                 "/proto.Marketstore/ListSymbols",
             );
-            self.inner.unary(request.into_request(), path, codec).await
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("proto.Marketstore", "ListSymbols"));
+            self.inner.unary(req, path, codec).await
         }
         pub async fn server_version(
             &mut self,
             request: impl tonic::IntoRequest<super::ServerVersionRequest>,
-        ) -> Result<tonic::Response<super::ServerVersionResponse>, tonic::Status> {
+        ) -> std::result::Result<
+            tonic::Response<super::ServerVersionResponse>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -476,7 +521,10 @@ pub mod marketstore_client {
             let path = http::uri::PathAndQuery::from_static(
                 "/proto.Marketstore/ServerVersion",
             );
-            self.inner.unary(request.into_request(), path, codec).await
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("proto.Marketstore", "ServerVersion"));
+            self.inner.unary(req, path, codec).await
         }
     }
 }
